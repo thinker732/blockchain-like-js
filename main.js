@@ -8,23 +8,40 @@ class Block {
     this.data = data;
     this.previousHash = previousHash;
     this.hash = this.calculateHash();
+    this.nonce = 0;
   }
 
   calculateHash() {
     return hash256(
-      this.index + this.previousHah + this.timestamp + JSON.stringify(this.data)
+      this.index +
+        this.previousHah +
+        this.timestamp +
+        JSON.stringify(this.data) +
+        this.nonce
     ).toString();
   }
 
   isHashValid = () => {
     return this.hash == this.calculateHash();
   };
+
+  mineBlock(difficulty) {
+    while (
+      this.hash.substring(0, difficulty) !== Array(difficulty + 1).join("0")
+    ) {
+      this.nonce++;
+      this.hash = this.calculateHash();
+    }
+
+    console.log("Block mined:" + this.hash);
+  }
 }
 
 class Blockchain {
   constructor() {
     this.mark_index = 0;
     this.chain = [this.createGenesisBlock()];
+    this.difficulty = 4;
   }
 
   createGenesisBlock() {
@@ -42,7 +59,8 @@ class Blockchain {
       _data,
       this.getLatestBlock().hash
     );
-    newBlock.hash = newBlock.calculateHash();
+    //newBlock.hash = newBlock.calculateHash();
+    newBlock.mineBlock(this.difficulty);
     this.chain.push(newBlock);
   }
 
@@ -60,13 +78,17 @@ class Blockchain {
 }
 
 let ApoChain = new Blockchain();
-ApoChain.addBlock({ amount: 15 });
+
+console.log("mining block one ...");
+ApoChain.addBlock({ amount: 1 });
+console.log("mining block two ...");
 ApoChain.addBlock({ amount: 10 });
 
 console.log(JSON.stringify(ApoChain, null, 10));
 console.log("Is Blockchain Valid? " + ApoChain.isChainValid());
 
 ApoChain.chain[1].data = { amount: 100 };
-//Blockchain.chain[1].hash=Blockchain.chain[1]
-
+//Blockchain.chain[1].hash = Blockchain.chain[1];
+console.log(ApoChain.chain[1]);
+console.log(ApoChain.chain[1].isHashValid());
 console.log("Is Blockchain Valid? " + ApoChain.isChainValid());
