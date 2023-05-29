@@ -1,26 +1,10 @@
-async function generateKeys() {
-  try {
-    const { publicKey, privateKey } = await window.crypto.subtle.generateKey(
-      {
-        name: "RSA-OAEP",
-        modulusLength: 2048,
-        publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
-        hash: { name: "SHA-256" },
-      },
-      true,
-      ["encrypt", "decrypt"]
-    );
+const EC = require("elliptic").ec;
 
-    // Access and use the publicKey and privateKey as needed
-    console.log("Public Key:", publicKey);
-    console.log("Private Key:", privateKey);
+const ec = new EC("secp256k1"); // this is also the basics on bitcoin wallet
 
-    // You can return the keys or perform other operations here
-    return { publicKey, privateKey };
-  } catch (error) {
-    console.error("Error generating keys:", error);
-  }
-}
+const key = ec.genKeyPair();
+const publicKey = key.getPublic("hex");
+const privateKey = key.getPrivate("hex"); //hex format of the string
 
-// Call the generateKeys function
-generateKeys();
+console.log("SK: " + privateKey);
+console.log("PK: " + publicKey);
